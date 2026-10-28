@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The AI Arc — An Interactive AI Fluency Journey</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* core neutrals */
+    --ink:#16302f; --paper:#fcfcfc; --muted:#6b8280;
+    --rule:#cfe0dc; --card:#f7fbfa;
+    /* teal system — from the tracker */
+    --shell:#12363a; --seg:#4f9a9b; --seg-lit:#6fb8b6; --seg-dim:#3d7d80;
+    --tint-1:rgba(111,184,182,.28); --tint-2:rgba(79,154,155,.14);
+    /* single warm accent, used sparingly */
+    --accent:#b6452c; --accent-soft:#d98b5f;
+    /* deep contrast for thesis */
+    --thesis:#12363a; --thesis-soft:rgba(79,154,155,.16);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:'Merriweather',serif;font-weight:300;
+    padding:44px 24px 90px;min-height:100vh;
+    background-image:radial-gradient(circle at 12% 6%, rgba(79,154,155,.07), transparent 45%),
+                     radial-gradient(circle at 88% 94%, rgba(18,54,58,.05), transparent 45%);
+  }
+  .wrap{max-width:1000px;margin:0 auto;}
+
+
+  /* MASTHEAD */
+  .masthead{text-align:center;margin-bottom:8px;}
+  .masthead .kicker{font-size:11px;letter-spacing:.35em;text-transform:uppercase;color:var(--seg-dim);font-weight:500;}
+  .masthead h1{font-family:'Fraunces',serif;font-size:46px;font-weight:600;letter-spacing:-1px;line-height:1.05;margin:10px 0 6px;}
+  .masthead .sub{font-size:13.5px;color:var(--muted);max-width:560px;margin:0 auto;line-height:1.6;}
+  .portfolio-note{max-width:730px;margin:15px auto 0;text-align:center;font-size:12.5px;line-height:1.6;color:var(--muted);}
+  .divider{width:60px;height:2px;background:var(--seg);margin:28px auto 40px;}
+
+
+  /* SUMMARY PANEL */
+  .summary{
+    background:linear-gradient(135deg, rgba(111,184,182,.28) 0%, rgba(79,154,155,.16) 55%, rgba(111,184,182,.10) 100%);
+    border:3px solid var(--shell);
+    border-radius:10px;
+    padding:22px 32px 26px;margin-bottom:30px;
+    box-shadow:0 10px 30px rgba(18,54,58,.16);
+    display:flex;flex-direction:column;align-items:flex-start;
+  }
+  .summary .s-tile{
+    flex:0 0 auto;width:50px;height:50px;border-radius:12px;
+    background:var(--shell);
+    display:flex;align-items:center;justify-content:center;font-size:23px;
+    box-shadow:0 3px 10px rgba(18,54,58,.22);
+  }
+  .summary .s-phase{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:5px;}
+  .summary h2{font-family:'Fraunces',serif;font-size:26px;font-weight:600;letter-spacing:-.4px;line-height:1.14;margin-bottom:4px;}
+  .summary .s-era{font-size:12.5px;color:#5c6f6c;font-style:italic;margin-bottom:12px;}
+  .summary p.s-lede{font-size:14px;line-height:1.75;max-width:680px;}
+  .summary .s-body{flex:1;min-width:0;}
+  .summary .s-inner{display:flex;gap:20px;align-items:flex-start;width:100%;}
+  .mini-track{
+    display:inline-flex;gap:1px;align-items:center;
+    background:var(--shell);border-radius:999px;padding:2px 3px;
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.35);
+    margin-bottom:14px;
+  }
+  .mini-track .mt{
+    width:5px;height:8px;background:var(--seg-dim);
+    clip-path:polygon(22% 0,100% 0,78% 100%,0 100%);
+    transition:background .25s ease;
+  }
+  .mini-track .mt:first-child{clip-path:polygon(0 0,100% 0,78% 100%,0 100%);border-radius:999px 0 0 999px;}
+  .mini-track .mt:last-child{clip-path:polygon(22% 0,100% 0,100% 100%,0 100%);border-radius:0 999px 999px 0;}
+  .mini-track .mt.on{background:var(--seg-lit);}
+  .mini-track .mt.slot{background:#2a5457;}
+  @media(max-width:640px){
+    .summary{padding:22px 20px;}
+    .summary .s-inner{flex-direction:column;gap:14px;}
+  }
+
+
+  /* BAR */
+  .bar-scroll{overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;}
+  .shell{
+    background:var(--shell);border-radius:999px;padding:9px;
+    box-shadow:0 12px 30px rgba(18,54,58,.28), inset 0 2px 6px rgba(0,0,0,.35);
+    overflow:hidden;height:88px;min-width:760px;
+  }
+  .segs{display:flex;height:100%;gap:4px;}
+  .seg{
+    flex:1;position:relative;cursor:pointer;background:var(--seg-dim);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    transition:background .28s ease;color:rgba(255,255,255,.62);
+    clip-path:polygon(14% 0, 100% 0, 86% 100%, 0% 100%);
+  }
+  .seg:first-child{clip-path:polygon(0 0,100% 0,86% 100%,0 100%);border-radius:999px 0 0 999px;}
+  .seg:last-child{clip-path:polygon(14% 0,100% 0,100% 100%,0 100%);border-radius:0 999px 999px 0;}
+  .seg:hover{background:var(--seg);color:#fff;}
+  .seg.on{background:var(--seg-lit);color:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55);}
+  .seg.open-slot{background:#2a5457;color:rgba(255,255,255,.4);}
+  .seg.open-slot:hover{background:#376a6d;}
+  .s-ico{font-size:19px;line-height:1;}
+  .s-num{font-family:'Fraunces',serif;font-weight:700;font-size:11px;letter-spacing:.08em;opacity:.85;}
+  .hint{text-align:center;font-size:12px;color:var(--muted);margin-top:12px;font-style:italic;}
+
+
+  /* DETAIL */
+  .detail{
+    margin-top:30px;background:var(--card);border:1px solid var(--rule);
+    border-top:5px solid var(--seg-lit);border-radius:12px;padding:34px 34px;
+    box-shadow:0 12px 40px rgba(18,54,58,.07);
+    animation:rise .45s cubic-bezier(.22,1,.36,1) both;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes slideFromRight{
+    0%{opacity:0;transform:translateX(38px);}
+    100%{opacity:1;transform:translateX(0);}
+  }
+  @keyframes slideFromLeft{
+    0%{opacity:0;transform:translateX(-38px);}
+    100%{opacity:1;transform:translateX(0);}
+  }
+  .summary.go-right{animation:slideFromRight .42s cubic-bezier(.22,1,.36,1) both;}
+  .summary.go-left{animation:slideFromLeft .42s cubic-bezier(.22,1,.36,1) both;}
+  .detail-head{border-bottom:1px solid var(--rule);padding-bottom:20px;margin-bottom:28px;display:flex;gap:20px;align-items:flex-start;}
+  .head-ico{
+    flex:0 0 auto;width:54px;height:54px;border-radius:12px;background:var(--seg-lit);
+    display:flex;align-items:center;justify-content:center;font-size:25px;
+  }
+  .d-phase{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:500;margin-bottom:6px;}
+  .detail-head h2{font-family:'Fraunces',serif;font-size:29px;font-weight:600;letter-spacing:-.5px;line-height:1.12;}
+  .d-era{margin-top:7px;font-size:13px;color:var(--muted);font-style:italic;}
+  .detail-lede{font-size:14.5px;line-height:1.75;margin-bottom:32px;max-width:670px;}
+
+
+  /* BENTO GRID — mixed horizontal + vertical */
+  .block-grid{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    grid-auto-rows:minmax(10px,auto);
+    grid-auto-flow:row dense;
+    gap:14px;
+    align-items:start;
+  }
+  .block{
+    background:#fff;border:1px solid var(--rule);border-radius:10px;
+    padding:20px 22px;box-shadow:0 2px 10px rgba(18,54,58,.05);
+    transition:box-shadow .25s ease, transform .25s ease, border-color .25s ease;
+    align-self:start;
+  }
+  .block:hover{box-shadow:0 8px 22px rgba(18,54,58,.11);transform:translateY(-2px);border-color:var(--seg-lit);}
+
+
+  /* span classes — width */
+  .block.w-2{grid-column:span 2;}
+  .block.w-3{grid-column:span 3;}
+  .block.w-4{grid-column:span 4;}
+  .block.w-6{grid-column:span 6;}
+  /* tall tiles: narrow column, content runs vertically */
+  .block.tall{grid-row:span 2;}
+
+
+  /* lesson tile — the anchor, full width */
+  .block.lesson{
+    background:linear-gradient(135deg,var(--tint-1) 0%,var(--tint-2) 100%);
+    border:2px solid var(--shell);
+  }
+  .block.lesson h3{color:var(--shell);border-bottom-color:rgba(18,54,58,.25);}
+  .block.lesson li{font-size:13.2px;}
+  .block.lesson li::before{background:var(--shell);}
+
+
+  /* narrow/vertical tiles get tighter type */
+  .block.w-2 li{font-size:12.2px;line-height:1.55;}
+  .block.w-2 h3{font-size:9.5px;letter-spacing:.16em;}
+
+
+  /* Observations & Experience split layout */
+  .oe-split{display:grid;grid-template-columns:1fr 1px 1fr;gap:18px;}
+  .oe-split .oe-col h4{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--seg-dim);margin-bottom:10px;font-weight:600;}
+  .oe-split .oe-line{background:var(--rule);}
+  .oe-split ul{list-style:none;}
+  .oe-split li{font-size:12.8px;line-height:1.6;padding:6px 0 6px 16px;position:relative;}
+  .oe-split li::before{content:'';position:absolute;left:0;top:13px;width:5px;height:5px;border-radius:50%;background:var(--seg);}
+  .oe-split li strong{color:var(--shell);font-weight:700;}
+  @media(max-width:640px){
+    .oe-split{grid-template-columns:1fr;}
+    .oe-split .oe-line{display:none;height:1px;}
+  }
+
+
+  @media(max-width:900px){
+    .block-grid{grid-template-columns:repeat(4,1fr);}
+    .block.w-2{grid-column:span 2;}
+    .block.w-3{grid-column:span 2;}
+    .block.w-4{grid-column:span 4;}
+    .block.w-6{grid-column:span 4;}
+    .block.tall{grid-row:span 1;}
+  }
+  @media(max-width:640px){
+    .block-grid{grid-template-columns:1fr;gap:12px;}
+    .block.w-2,.block.w-3,.block.w-4,.block.w-6{grid-column:span 1;}
+    .block.tall{grid-row:span 1;}
+    .detail{padding:24px 18px;}
+    body{padding:28px 14px 60px;}
+    .masthead h1{font-size:34px;}
+    .detail-head{flex-direction:column;gap:14px;}
+  }
+  .block h3{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--seg-dim);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--rule);}
+  .block.oe > h3{font-size:14px;}
+  .block ul{list-style:none;}
+  .block li{font-size:12.8px;line-height:1.6;padding:6px 0 6px 18px;position:relative;}
+  .block li::before{content:'';position:absolute;left:0;top:13px;width:5px;height:5px;border-radius:50%;background:var(--seg);}
+  .block a{color:var(--accent);text-decoration:underline;}
+  /* Relevant Builds — dark shell treatment, matching the thesis block */
+  .block.builds-dark{background:var(--shell);border:2px solid var(--shell);color:#eaf4f2;box-shadow:0 8px 22px rgba(18,54,58,.22);}
+  .block.builds-dark h3{color:var(--seg-lit);border-bottom-color:rgba(255,255,255,.18);}
+  .block.builds-dark li{color:#dbe9e6;}
+  .block.builds-dark li::before{background:var(--seg-lit);}
+  .block.builds-dark a{color:#fff;font-weight:700;text-decoration:underline;text-decoration-color:var(--seg-lit);}
+  .block.builds-dark:hover{border-color:var(--seg-lit);}
+  /* narrative "Entering This Phase" variant — intro prose, labeled bullets, closing line */
+  .block .enter-lede{font-size:13.2px;line-height:1.72;margin-bottom:12px;}
+  .block .enter-lede strong{font-weight:700;color:var(--shell);}
+  .block .enter-close{font-size:13.2px;line-height:1.72;margin-top:14px;font-style:italic;}
+  .block .enter-list li{padding:7px 0 7px 18px;}
+  .block .enter-list li::before{top:14px;}
+  .block .enter-list .lead{font-weight:700;color:var(--shell);}
+
+
+  .component,.thesis,.questions{grid-column:1/-1;border-radius:10px;padding:24px 28px;}
+  .component{background:linear-gradient(135deg,rgba(111,184,182,.16) 0%,rgba(79,154,155,.05) 100%);border:1px solid var(--rule);border-left:4px solid var(--seg-lit);}
+  .c-tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--seg-dim);font-weight:600;margin-bottom:10px;}
+  .component h4{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:var(--shell);line-height:1.3;margin-bottom:10px;}
+  .component p,.thesis p{font-size:12.8px;line-height:1.72;}
+  .thesis{background:var(--shell);border:2px solid var(--shell);color:#eaf4f2;}
+  .t-tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--seg-lit);font-weight:600;margin-bottom:10px;}
+  .thesis h4{font-family:'Fraunces',serif;font-size:21px;font-weight:600;color:#fff;line-height:1.3;margin-bottom:10px;}
+  .questions{background:rgba(79,154,155,.07);border:1px dashed var(--seg);}
+  .questions h3{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--seg-dim);margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid var(--rule);}
+  .questions ul{list-style:none;}
+  .questions li{font-size:12.8px;line-height:1.65;padding:7px 0 7px 22px;position:relative;}
+  .questions li::before{content:'?';position:absolute;left:0;top:6px;font-family:'Fraunces',serif;font-weight:700;color:var(--seg-dim);font-size:15px;}
+  .placeholder-note{text-align:center;color:var(--muted);font-style:italic;font-size:15px;padding:24px 0;line-height:1.7;}
+  .pending{font-size:12.8px;color:var(--muted);font-style:italic;line-height:1.6;padding:4px 0;}
+  .phase-intro{grid-column:1/-1;font-size:14.5px;line-height:1.78;max-width:780px;padding:2px 6px 0;}
+  .phase-intro strong{color:var(--shell);font-weight:700;}
+  .cert-group{margin-top:18px;padding-top:14px;border-top:1px solid rgba(18,54,58,.18);}
+  .cert-group h4{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--shell);font-weight:700;margin:14px 0 2px;}
+  .cert-group h4:first-child{margin-top:0;}
+  .cert-group .pending{color:#5c6f6c;padding-left:0;}
+  .apps-note{font-weight:700;color:var(--shell);font-size:13px;margin:2px 0 14px;}
+  .apps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:6px;}
+  .app-card{opacity:0;animation:appFade .45s cubic-bezier(.22,1,.36,1) forwards;cursor:pointer;border:0;background:transparent;padding:0;text-align:left;}
+  .app-card img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:18px;border:1px solid var(--rule);box-shadow:0 6px 18px rgba(18,54,58,.16);transition:transform .2s ease, box-shadow .2s ease;}
+  .app-card:hover img{transform:translateY(-3px);box-shadow:0 12px 26px rgba(18,54,58,.24);}
+  @keyframes appFade{from{opacity:0;transform:translateY(10px) scale(.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+  @media(max-width:640px){.apps-grid{grid-template-columns:repeat(2,1fr);gap:12px;}}
+  /* app detail modal */
+  .app-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(10,26,28,.55);}
+  .app-modal.open{display:flex;}
+  .am-panel{position:relative;width:100%;max-width:470px;max-height:86vh;overflow-y:auto;background:linear-gradient(180deg,var(--app-tint,transparent) 0%,transparent 34%),var(--paper);border:1px solid var(--rule);border-top:6px solid var(--app-theme,#12363a);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.4);padding:30px 30px 34px;animation:amRise .28s cubic-bezier(.22,1,.36,1);}
+  @keyframes amRise{from{opacity:0;transform:translateY(16px) scale(.98);}to{opacity:1;transform:none;}}
+  .am-close{position:absolute;top:8px;right:14px;background:none;border:none;font-size:27px;line-height:1;color:var(--muted);cursor:pointer;}
+  .am-close:hover{color:var(--ink);}
+  .seg:focus-visible,.app-card:focus-visible,.am-close:focus-visible{outline:3px solid #1f7e80;outline-offset:4px;}
+  .am-head{display:flex;align-items:center;gap:16px;margin-bottom:18px;}
+  .am-img{width:82px;height:82px;flex:0 0 auto;border-radius:18px;object-fit:cover;border:1px solid var(--rule);box-shadow:0 5px 16px rgba(18,54,58,.2);}
+  .am-name{font-family:'Fraunces',serif;font-size:23px;font-weight:600;letter-spacing:-.3px;line-height:1.12;color:var(--app-theme,var(--shell));}
+  .am-desc{font-size:14px;line-height:1.72;color:var(--ink);}
+  @media(max-width:640px){.am-panel{padding:24px 20px 28px;} .am-head{gap:12px;} .am-img{width:64px;height:64px;}}
+  .footer{text-align:center;margin-top:56px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .footer::before{content:'';display:block;width:40px;height:2px;background:var(--seg);margin:0 auto 18px;}
+  .history-link{color:inherit;text-underline-offset:3px;text-decoration-thickness:1px;}
+  .history-link:hover,.history-link:focus-visible{color:var(--shell);outline-offset:4px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="kicker">Personal &amp; Professional Development</div>
+    <h1>The AI Arc</h1>
+    <p class="sub">I thought courses would be what moved me forward. What actually made these insights last was the combination — knowledge, real experience, and the right human conditions — compounding across every phase.</p>
+  </div>
+  <p class="portfolio-note">An interactive, self-directed learning journey drawing on personal experimentation and professional observations. Selected workplace details have been generalized for public review.</p>
+  <div class="divider"></div>
+
+
+  <div class="summary" id="summary"></div>
+
+
+  <div class="bar-scroll">
+    <div class="shell"><div class="segs" id="segs"></div></div>
+  </div>
+  <p class="hint">click any phase</p>
+
+
+  <div class="detail" id="detail"></div>
+  <div class="footer">Living Document &middot; Building Gradually &middot; 2026 <span aria-hidden="true">&middot;</span> <a href="behind_the_build.html" class="history-link">Behind the Build</a></div>
+</div>
+
+
+<div class="app-modal" id="app-modal">
+  <div class="am-panel" role="dialog" aria-modal="true" aria-labelledby="app-modal-title">
+    <button class="am-close" aria-label="Close">&times;</button>
+    <div class="am-head">
+      <img class="am-img" alt="">
+      <h3 class="am-name" id="app-modal-title"></h3>
+    </div>
+    <p class="am-desc"></p>
+  </div>
+</div>
+
+
+<script>
+const phases = [
+  {
+    ico:"🌱", label:"Phase 01", title:"Curiosity, Skepticism &amp; Fear", era:"Where everyone actually starts", hideBuilds:true,
+    lede:"The honest starting line. I came to AI the way most people do — wary of the hype, worried about what it meant for my work and the world, and in no hurry to engage. The turn wasn't excitement; it was realizing I couldn't defend against something I didn't understand. Concern, it turns out, is a perfectly good reason to begin.",
+    lessons:[
+      "<strong>Concern is a legitimate entry point.</strong> You don't have to believe in AI to start learning it — wanting to protect yourself and the people around you is reason enough, and it may be the more durable motivation.",
+      "<strong>You can't critique — or defend against — what you don't understand.</strong> Even the decision to keep AI at arm's length requires enough fluency to know what you're refusing. Skepticism and advocacy stand on the same foundation."
+    ],
+    comprised:["I started back in 2023 with a few random test sessions, just to see what LLMs could do at the time. After that — aside from the occasional question — I barely touched it and counted myself a skeptic. The results weren't good, it didn't feel worthwhile, and I couldn't name a single case where adding AI actually helped. This is exactly where a lot of people still sit.","I stayed there for the next year or two, watching the models improve and the conversation around AI grow more divisive.","The tipping point was OpenAI's Sora 2. Seeing how realistic AI video had become sharpened every concern I already had — and around the same time I found a social page, ShowTools, that showcased those videos and called out the \"tells\" for spotting them.","That's when I decided to jump fully in. I wanted to help by raising awareness for the people around me — I pictured a small, occasional \"real or AI?\" bit at the end of a team huddle. Then it hit me: to run it, I'd have to reliably spot this stuff myself, and I couldn't. I still didn't know the first thing about AI. That's what led me to the UMD course."],
+    built:["Nothing yet — this phase comes before any building begins"],
+    observed:["<strong>The wariness is rational, not ignorant — and it deserves a real answer.</strong> And it has to be a real one, carefully and deliberately built from experience — without that, most people can't get past step one. You usually can't jump straight to the novelty, because the novelty itself can be off-putting until the groundwork has been laid.","<strong>The only thing that moves someone out of this phase is a real, lived \"win\" — proof, not persuasion.</strong> The hype, the novelty, and the uncanny sense of a machine acting on its own raise everyone's guard, and no argument fully lowers it. Only a result does. And the win is a launch point, not a finish line — the moment fluency starts, not a box to check."],
+    resources:["No course, no framework — pure curiosity","The reason I can tell a skeptic honestly: I started where you are"],
+    work:["The willingness to sit in discomfort became the thing I could later offer other people"],
+    enter:{
+      intro:"<strong>When LLMs hit the mainstream around 2023, I paid them little mind.</strong> After years of tech hype — crypto, NFTs, and the rest — it was easy to file this under the same heading and move on. But it didn\'t fade the way those did. The noise only grew louder, and over time a few sentiments settled out of it:",
+      points:[
+        {lead:"The magic machine.", body:"AI was billed as the thing that knows almost everything and can do almost anything — and whatever it couldn\'t do yet, it would be able to do soon."},
+        {lead:"A threat to my livelihood.", body:"It felt like only a matter of time before AI could run a live session or do my job outright — my career suddenly on borrowed time."},
+        {lead:"The end of a shared reality.", body:"I was already alarmed by what social media had done to society; adding AI felt like it could be the breaking point. How is anyone supposed to tell what\'s real anymore? It was a serious problem before AI ever entered the picture."},
+        {lead:"The next great divider.", body:"Maybe I needed to learn a little, just to stay aware — the way a grandparent who never learned smartphones slowly gets cut off. Miss this piece, and you might not know how to interact with everyday tech later in life."}
+      ],
+      outro:"So I set out to learn."
+    }
+  },
+  {
+    ico:"🎓", label:"Phase 02", title:"UMD Course Completion", era:"Grounding the abstract",
+    oe:{left:"What Happened: Key Learnings"},
+    lede:"Where the abstract became tangible. A course built around 'here's how this can help you' — not 'look what it can do' — opened with demystification and kept a critical eye the whole way through. It reset how I saw the tool, gave the concerns a serious hearing, and produced a first build almost by accident.",
+    lessons:[
+      "<strong>Opacity feeds both the fear and the hype.</strong> Learn even a little about how the machine actually works and the 'magic' collapses into something with knowable limits — that's where clear thinking starts.",
+      "<strong>Relevance converts; features don't.</strong> A course, a product, a pitch — it lands when it's framed as 'here's how this helps you' and stalls when it's framed as 'look what it can do.'",
+      "<strong>Taking the concerns seriously is what earns trust.</strong> Voicing a worry is easy; thinking it through with real analysis, grounded in the real world, is what separates credibility from noise."
+    ],
+    comprised:["<strong>Demystification.</strong> The word itself does a lot of work, and it's where the course opened. Learning the mechanics — every token turned into numbers, the neural network underneath, embeddings and word2vec — changed how I saw the thing I was interacting with: <strong>it's not the magic machine.</strong> That was the Wizard-of-Oz, pull-back-the-curtain moment — I came away understanding how it actually interprets what I give it, and where its limits are.","<strong>John Deere's See &amp; Spray (a case study).</strong> We looked critically at a real business use of AI. The tech was genuinely innovative — fine-grained scanning that scaled beautifully — but it didn't match what the customers actually needed. The farmers on the ground didn't require that level of detail, so the novelty wasn't especially relevant, and there was an unresolved dispute over who owned the data it collected. A useful caution about rolling AI out to clients: just as the course appealed to me because it spoke in terms of \"here's how this helps you\" rather than \"Google replacement / draft an email,\" that's the framing and functionality a product needs in order to land.","<strong>Address the discomfort head-on.</strong> The course kept a critical eye throughout — \"here's what we're seeing right now, let's talk about it\" — and grounded it in specifics: real examples of model bias, cases like See &amp; Spray, a dedicated safety and governance module, and an honest overview of the other concerns and anxieties people bring to this."],
+    built:["My first build — a research guide on the concerns I still had (the environment, society, the gatekeepers), worked through with Claude. It began as learning, not a page; halfway in I realized the chat could turn the research itself into something shareable — and many rounds of iteration later, it laid the groundwork for the front-end breakthrough. Those same rounds started to shift how I thought about making things with AI — how much of the work is still yours to do, and how it only goes as far as you can take it."],
+    observed:["<strong>Cut through the media hype; trust real, on-the-ground experience.</strong> The headline feats — AI beating the best human at chess, cracking some elite math problem — were exactly the stories that, before demystification, amplified the Phase 01 fears. <strong>Goodhart's law</strong> is the one that stuck: once a measure becomes the target, it stops being a good measure. Those wins are optimized to a narrow benchmark, not to the everyday reality where the real value lives. Understanding the mechanics drained the hype of its power and put the weight back on actual application.","<strong>Genuine, grounded concern is what buys credibility.</strong> Validating and voicing legitimate worries about AI earns trust — but it can't be feigned. UMD modeled the whole move: naming a concern is only the first piece; the second is actually thinking it through and offering a real analysis, grounded back in the real world. That's what does the convincing — precisely because it's neither hype nor full-on adoption."],
+    resources:["University of Maryland: Artificial Intelligence and Career Empowerment certificate"],
+    work:["Triggered the leadership attention that followed"],
+    personal:["That course led to professional conversations about AI fluency and helped prompt me to reflect on the wider journey."],
+    enter:{
+      intro:"<strong>What pulled me toward the UMD course was its newness, the breadth of its module topics, and — above all — the career-empowerment angle.</strong> It took something abstract and made it tangible. I read it as \"here's how you can use this to help yourself in meaningful ways\" — a genuinely different pitch than the \"Google replacement\" and \"draft me an email\" uses that are usually the only ones on display."
+    }
+  },
+  {
+    ico:"🔧", label:"Phase 03", title:"Initial Applications", era:"Personal first", hideBuilds:true,
+    lede:"The first real application wasn't work — it was play. A video-game dynasty with zero stakes and total investment: the guard came down, the techniques showed up, and for the first time I was directing instead of asking. Personal-first isn't a detour; it's the on-ramp fluency actually gets built on.",
+    lessons:[
+      "<strong>The best classroom is something you already love.</strong> Low stakes plus real investment is the rare combination that lets you experiment freely and still care about the result. And it helps that it's something you already know deeply — you show up with the critical eye already in place. One distinction, though: stay open-minded. When something doesn't line up on the first try, that's not the moment to give up or draw sweeping conclusions about the tech itself — it's the moment to shift into problem-solving, tweak-and-iterate mode. That's exactly where the skill-building and the fluency take shape.",
+      "<strong>The obstacles are the curriculum.</strong> Hitting a wall and engineering around it teaches more than any tutorial — the workaround you invent for fun today becomes the technique you rely on at work tomorrow.",
+      "<strong>Progress is measured by which seat you're in.</strong> The moment you shift from accepting answers to directing outcomes — 'no, not like that, do it like this' — the relationship, and the results, change entirely."
+    ],
+    comprised:["<strong>My first image upload.</strong> It was the first time I'd put any kind of image into an LLM, and I was impressed by how well it read the game stat sheets — abbreviations and all — without much context. It also picked up on details in the image I hadn't mentioned or wasn't even focused on.","<strong>Context limits, and discovering handoff documents.</strong> Once I was thoroughly sucked in, I hit the peak of a season and — oh no — could no longer upload photos to that session. I'd reached the limit, and it stopped the fun in its tracks. But I thought back to what I knew about how LLMs read a chat and realized I could use it against itself: export the memory from the session and drop it into a fresh chat to pick right back up. Processing text is an LLM's bread and butter, so I had the old chat generate an extremely rich breakdown — which I called a 'master prompt' at the time. To this day I don't know if that's a real term or one I made up, but after many seasons of doing this I randomly came across the phrase 'handoff documents' in an AI context and realized that's exactly what I'd been building. It taught me about chat limits, carrying information across sessions, and that techniques like handoff documents exist — something I've used for real work constantly ever since.","<strong>Still far from perfect — but now I was the director.</strong> I kept bumping into its limits: repetitive prose, the distinct way it 'talks' even with instructions and context, the times it would fixate on something irrelevant. It was immersive, but not seamless. The difference was that for the first time I was the director rather than a seeker — more 'no, not like that, do it like this,' or 'stop saying that,' than just asking and accepting."],
+    built:["Personal builds pushed hard because the outcome mattered","A per-project context habit — load the full picture before asking for anything","Early workflow automation once the instinct matured"],
+    observed:["<strong>Personal-first is the reliable on-ramp; work-first usually stalls.</strong> Anyone who grew up playing college football has done this in their head forever — you make a coach character in dynasty mode and, off-screen, you're inventing the backstories, the press conferences, the TV spots, the news articles. The game sat on hiatus for over a decade, and when it came back, a lot of us who did that as kids were adults now — still carrying the same urge to wrap an immersive storyline around a season. So it didn't surprise me that people were using AI for exactly that. It's not a big, serious problem — but AI doesn't only have to solve big, serious problems; it's about meeting a need that couldn't be met before, through new creative means. Enhancing that stickiness in Dynasty Mode has always been a need, and what AI generates is nothing like the manual version we used to piece together. I ended up playing about seven seasons. It made a real difference — not work, not a major solution to a major problem, just the small, low-stakes win that showed me a new possibility, a different path.","<strong>What you get out is downstream of what you bring.</strong> On my own time I carried the same storyline idea into another area of interest — geopolitical what-if scenarios I couldn't really talk through with anyone, because the subject knowledge just wasn't there. Somewhere in those it landed: 'Oh — this is like writing my own little story.' The content was mine and the scenarios were mine, so what came back was shaped by what I brought. That was the whole thesis, felt long before I could put words to it. Eventually it reached further — into real life and professional topics, especially around Q4 review time. The same exact concept emerged, and because the context kept accumulating across sessions, the AI picked up on patterns in my life, career, and relationships over time — continuity and accumulated context changing the interaction entirely — bringing real clarity to my thinking and, at times, my real-world communication. I never set out for it to be a 'coach,' but for a stretch in this phase that's what the experience became — and that mattered too. All of it reframed how I thought about interacting with AI, and what the user's relationship to it actually is. The fastest way to feel it is to use it on something only you know well.","<strong>Play and exploration matter more than they get credit for.</strong> There's a reason there are master's-level courses on play in learning and child development — and not only for the social side. Play is where discovery happens in its rawest form: where the 'fun' and the positive, reinforcing experiences live, and where you can make mistakes freely because the whole mode is 'do whatever.' With something as broad and abstract as AI — which can run in almost infinite directions — that kind of open discovery isn't optional; it's how you find your footing. And 'play' doesn't have to mean a game or a scenario. It might be wiring it into Excel to explore new interactions, or brainstorming workflows to make something faster. It looks different for everyone, which is exactly why the exploration phase matters."],
+    resources:["Self-directed exploration","No credential — practice earning its keep"],
+    work:["Personal fluency became the foundation the professional work stood on"],
+    personal:["It started with a Delaware college-football video-game dynasty — silly, private, zero stakes, which is exactly why the guard came down — and grew into a full overhaul of my workout routine, personal planning tools, fitness resources, and a dynasty fantasy football GM agent built from scratch. None of it was work. All of it was practice."],
+    enter:{
+      intro:"<strong>By this point my sense of how to actually work with AI had grown, and I was open to using it in new ways — but I still didn't have a use case, so it all stayed abstract.</strong> What changed it was social media: I kept seeing fellow CFB 26 (College Football 26) dynasty players talk about using AI to enrich the experience by building a storyline around it. It sounded interesting, but I didn't really know what they meant — so eventually I looked it up. I saw how people fed the AI context and instructions, set a cadence to match the weekly rhythm of a football season, and built a cast of voices: faux newspaper articles, beat reporters, player quotes. It finally clicked as something I could actually do when I read one person's flow — snapping photos of the stat sheet after each game, uploading them, and having the AI generate the narratives and keep the stats over time. So I decided to give it a try."
+    }
+  },
+  {
+    ico:"💡", label:"Phase 04", title:"The Augmentation Transformation", era:"The \"I wonder\" moments", hideBuilds:true,
+    lede:"The shift from conversation to execution. It started embarrassingly small — 'turn this into a visual' — and compounded from there: real problems, real solutions, a growing sense that the ceiling had moved. This is where use becomes augmentation, and where 'I wonder if…' starts taking over.",
+    lessons:[
+      "<strong>Augmentation begins embarrassingly small.</strong> 'Turn this into a visual' is all it takes. The wins compound, the user improves, and perception follows — most people who think AI isn't good are actually just not yet good at using AI.",
+      "<strong>One discovered capability resets your entire ceiling.</strong> After the first 'wait — it can do this?' moment, problems everywhere start turning into 'I wonder if…' — and once you have that lens, it doesn't switch off.",
+      "<strong>You know more than you think you do.</strong> The language, skills, and instincts from everywhere else in your life translate directly — fluency is largely learning to route what you already have through a new tool."
+    ],
+    comprised:["<strong>The front-end breakthrough.</strong> \"Wait — I didn't know it could do this.\" Not building — not an app, not a repository, not yet — just the realization that a working page could generate right there in the conversation, visuals and all, through prompting alone. A chore system came together almost by accident, something I never set out to design. That stumble is the hinge, and it's available to anyone: the moment you discover a capability you didn't know was on the table, your sense of what's possible resets. Everything after it starts with 'if it can do this, I wonder if it can also…'","<strong>Branching out into real problems.</strong> With a much better sense of how to interact, I started reaching into more topics — random problems that needed solving, spot help with jobs around the house, 'explain this complex topic I've always wanted to learn, in these specific terms.' In one case I voiced a real frustration: keeping the house clean through a proactive routine instead of reacting to messes once they piled up. After walking through my layout, my situation, and my point of view in detail, we built a cleaning system catered to me. Better equipped after the front-end breakthrough, I reused the techniques from the exploration phase and had Claude turn that system into a visual guide. The nature of my requests and inputs was quietly changing — the larger shift toward augmentation was taking hold.","<strong>The workout routine — the longest-lasting build from this phase.</strong> I was just getting back into regularly working out, a habit that matters to me and one I'd been out of for a long, frustrating stretch. Back in a good rhythm and wanting to keep the momentum, I realized my lifting felt stale and probably wasn't hitting each area as well as it could on a given muscle-group day. So I laid out my conditions, my goals, and exactly what I was after, and over time we built a routine that's better sequenced, properly targeted, and far more effective. Then the front-end skills came back in: I had it turn the routine into workout cards in a format that makes perfect sense for me to follow, with options for each subgroup. I saved them to a folder and have followed them every workout since — and the set keeps expanding as I learn new exercises.","<strong>Where the unlocking truly began — the 'I wonder' moments.</strong> After watching these jobs actually succeed — real solutions to real problems in my own life — something shifted. I call them 'I wonder' moments, because a world of possibility gradually opens up. You start interpreting problems through a different lens and catch yourself thinking, 'I wonder if I could have it help with this,' or 'I wonder if I could build that.' This is where the real magic of the move from basic use to augmentation begins."],
+    built:["Capture infrastructure — a running inventory of ideas and principles","Named frameworks that made recurring patterns teachable"],
+    observed:["<strong>AI-augmented work lands best when it starts from a real problem — especially a sticky one that's resisted easier fixes.</strong> And when you land that win — solving something that had been stuck, in your own way, on terms that fit how your brain works, crafted by you — it carries real weight. It does more than solve the problem: it opens up the possibilities and the \"I wonder\" moments, because things that seemed out of reach suddenly look doable, or a new path to a problem you'd been circling quietly appears. It's the weight of the win, followed by the shift in perspective.","<strong>The wins are small at first — and that's exactly how it works.</strong> Circling back to where this started: what actually moves someone forward is a real, lived win. And every one of these was small — a simple request, \"turn this into a visual,\" and that was it. But the transformation keeps taking shape over time. It's a gradual process that builds on itself, and you improve dramatically as a user along the way — and your perception shifts right along with it. I often put it this way: \"I used to think AI wasn't good, then I realized I just wasn't very good at using AI.\" Putting yourself in the driver's seat is the major move, and it changes the nature of the relationship with the tool entirely.","<strong>You start translating what you already know — I call it 'backwards math.'</strong> Slowly, you begin connecting the task to your existing experience. The clearest example for me was going from 'move this object further to the right' to 'shift it 6px right along the x-axis.' It didn't come instantly, but after landing in the same spot over and over — trying to execute something with AI that I'd done before in another setting — the connection formed: wait, I already know the technical language and functions. I can just say 'bevel and emboss' from Adobe and it'll know exactly what I mean, or I could send a picture. Once you start making those connections, the augmentation reaches a new level."],
+    resources:["A living-document system for capture","Everything from the breakthrough moment, now compounding"],
+    work:["This is the phase a certificate gets mistaken for the start of"],
+    personal:["For me this produced the Idea Inventory, the Running List of Principles, and named frameworks like the Jarvis Ceiling — all before any formal course."],
+    enter:{
+      intro:"<strong>By this point I'd interacted with AI extensively — but the relationship was still largely through the lens of back-and-forth chat.</strong> Though it had deepened, it still hadn't shifted into 'idea execution' mode <strong>(Augmentation)</strong>. That was about to change."
+    }
+  },
+  {
+    ico:"📣", label:"Phase 05", title:"The AI Fluency Push", era:"The outward turn",
+    lede:"The outward turn. Once your own relationship with the tool has transformed, the old fear of a widening divide becomes a reason to act. Conversations, showcased builds, helping people land their first win — creating the conditions for others to start the same arc, because all of it compounds.",
+    lessons:[
+      "<strong>Experience is what gives the conversation weight.</strong> Conviction earned through real use — including knowing what AI is <em>not</em> for — is what actually moves the discourse. Commentary without practice is just more noise.",
+      "<strong>Skepticism isn't always about the technology alone.</strong> Privacy, reliability, and poor implementations are legitimate concerns. But anxiety, identity, and readiness also shape resistance — what using this says about who I am and how I work. The first job is to listen for what's actually driving the concern.",
+      "<strong>Give people room, and keep the room alive.</strong> Transformation has to be gradual — safe exploration, personal terms, their own arc — but paired with constant motion: builds shown, stories told, the discussion kept going. Environment over mandate."
+    ],
+    comprised:["<strong>Kept a running awareness of how I use AI.</strong> Especially at work — as I notice things that feel important about working with the tool, I jot them into a living document I call the 'Running List of Principles': the stuff I'd want anyone arriving at my Phase 01 sentiment to know.","<strong>Kept pushing into new ways of using it.</strong> I still consider myself relatively early in this, and things move fast — so I can't treat the perspective shift as a finish line; it's the start of a new phase. That's why I keep looking for new ways to work with it and expand what I can do — there's still so much unknown, and it all compounds. It's also why I've reflected on specific experiences with it, like the weekly e-learning challenges built around LinkedIn articles.","<strong>Constant conversations — and helping people find their early wins.</strong> I talk with just about everyone about AI, listening to their perspective and sharing mine, and trying to help them land the crucial 'early win,' since what works is so different for everyone. I hadn't realized at first how portable these ideas were across contexts — but back to the unlocking-of-ideas concept, the more your comfort and awareness grow, the easier it gets to translate almost anything into augmentation terms. I've 'converted' a few friends this way, and a few teammates have told me I've changed how they see it.","<strong>Showcasing builds and projects.</strong> From all these conversations and my own experience, seeing is believing — so I show the work: a finished product that quietly challenges a preconceived notion, a before/after, tracked changes, and me talking through the process — telling the whole story, from the origin problem to the brainstorming and development and everything after."],
+    built:["Seven-persona teacher case studies — an academic thesis run through an original analytical framework","A standalone case for AI fluency","Westover\'s 3 Dimensions of Sustainable AI Transformation"],
+    observed:["<strong>I can speak about it with real conviction now.</strong> I have evidence that AI doesn't just 'agree with everything you say,' and that quality work with it takes domain knowledge, diligence, and a critical eye. I also know what improper use and implementation look like — equally important to be able to speak to clearly. The conversations around AI are only going to grow, and they're the best way to keep moving the needle and improving the discourse. A firm footing rooted in experience is what makes those conversations actually effective.","<strong>Anxiety and identity can be part of skepticism.</strong> Some concerns call for real answers about the technology; others touch deeper questions about confidence, relevance, and readiness. My own experiences have helped me recognize that distinction and respond thoughtfully. That realization keeps leading me back to AI in the workplace — given the nature of our work and our content. I picture botched rollouts, hear stories of forced adoption and top-down initiatives, or people simply not equipped for certain AI-related developments, and I start to worry about how all of that will deepen those anxieties. Understanding the arc people need to go on their own, and knowing what good actually looks like, is what leaves me comfortable navigating these concerns looking ahead — no matter the context.","<strong>Transformation has to be gradual — and kept in motion.</strong> Real AI adoption needs room for people to explore safely and arrive at it on their own terms, building their own relationship with the tool. But gradual doesn't mean idle — it has to be paired with constant momentum: showcasing builds, keeping it alive in the discussion, and creating an environment where that exploration can actually happen. Both at once — space to come to it personally, and steady motion to keep it moving."],
+    resources:["A structured AI fluency course, taken socially","A tiers-of-use explainer, deployed at the right moment in a conversation","Case study documents and companion frameworks"],
+    work:["Early colleague conversations suggesting growing interest in practical AI use","Fluency becoming an organizational asset rather than an individual one"],
+    personal:["Two colleagues explored an AI fluency course alongside me, with a small group discussion around what we were learning — one firsthand example of learning socially.","I found the study in the community and built the activity in the push — that sequence is the whole model in miniature."],
+    enter:{
+      intro:"<strong>Now that my sense of AI and my relationship with the tool had fundamentally changed, I found myself thinking back to that Phase 01 fear — the 'next great divider.'</strong> The conversation had only grown more divisive since 2023; lines were being drawn. Having shifted my own perspective and started picturing the future differently, I realized how much it would matter for other people to go on an arc like mine. It wasn't that I now used AI for everything — if anything, the experience sharpened my sense of what it's for and what it's not. It's nowhere near as black-and-white as the media makes it. But given what a lightning rod it's become, I can only see the divide widening. Before my own experience I probably wouldn't have said that, and I still have trouble fully articulating it. When it comes to work, though, I came away certain: its presence will only get more ingrained over time, which will widen that divide further — and I now know what it takes to change someone's perspective, and what that unlocks. That's what pushes me to keep urging the people around me to start with exploration, go on their own arc, and gradually build fluency and a relationship with the tool. Because it compounds."
+    }
+  },
+  {
+    ico:"🧭", label:"Phase 06", title:"Now — Looking Ahead", era:"Where this is going",
+    sections:[
+      {title:"A Suite of Apps &amp; Solutions", shape:"w-6", note:"Click an icon to read more about the app.", images:[
+        {src:"assets/apps/gitget.png", name:"GitGet", theme:"#6b3fe4", desc:"GitGet is a personal dashboard for all your live GitHub Pages sites — it auto-discovers every repo with Pages enabled, pulls each one's live URL and build status, and lays them out as tap-to-open cards on an installable phone app. Instead of digging through repos or the Actions tab to find a deployed site, you open GitGet, tap the repo, and you're there. It stays current two ways: a \"send to GitGet\" push from inside a build session the moment a page goes live, plus a one-tap Sync that scans GitHub for anything new."},
+        {src:"assets/apps/quicksum.png", name:"QuickSum", theme:"#2ea88f", desc:"QuickSum is a personal reading app (installable PWA) built for digesting dense, long-form material — books, government documents, publishings, PDFs, and articles — via AI-generated summaries. Rather than reading a summary once and forgetting it, QuickSum gives you a persistent, categorized library where you can annotate, highlight, and debrief on those summaries over time. It's essentially a \"second brain\" layer for tackling heavy texts that would otherwise take too long to read in full."},
+        {src:"assets/apps/projdash.png", name:"ProjDash", theme:"#6a4be6", desc:"ProjDash is a persistent, Claude-connected project tracker — say \"add this to the tracker\" in any chat, and it's saved to a shared Supabase-backed list you can also browse and update from a lightweight mobile-friendly web app. It exists to catch the \"come back to this later\" items (articles, research threads, build ideas, follow-ups) that otherwise get lost in conversation history, with bidirectional sync so updates from Claude or the app stay in lockstep."},
+        {src:"assets/apps/liftbuddy.png", name:"LiftBuddy", theme:"#2172e6", desc:"LiftBuddy is a personal workout tracking app built around your exact training system — it organizes your weekly gym schedule, shows your full exercise rotation by muscle slot, and remembers the weights you lifted last session so you always know what to beat. Think of it as a digital version of your session cards that lives on your phone."},
+        {src:"assets/apps/foodlog.png", name:"FoodLog", theme:"#2f7de6", desc:"FoodLog is a personal recipe and meal idea tracker that lets you save, organize, and visually browse your favorite foods across four categories — Breakfast, Meals, Snacks, and Misc. With a TikTok-style scroll feed, AI-powered idea suggestions, and optional recipe notes and calorie tracking, it turns your go-to meals into a beautifully organized personal cookbook that lives on your phone like any native app."},
+        {src:"assets/apps/taskcal.png", name:"TaskCal", theme:"#2f6fe6", desc:"TaskCal (Task Calendar) is a personal day planner built for your phone — add tasks, mark them done, and organize recurring habits into step-by-step routines, all in one clean interface. It gives you a day view, week view, and month view so you can see your schedule at any scale, with extras like custom lists, drag-to-reorder, and categories to keep everything sorted."},
+        {src:"assets/apps/commandgm.png", name:"Command GM", theme:"#1f8f6a", desc:"Command GM is an AI-powered dynasty fantasy football assistant that knows your league — your roster, your rivals' rosters, real-time player values from FantasyCalc, and live NFL depth charts from Sleeper. You chat with it like a text message, ask anything from \"should I accept this trade?\" to \"who's the best waiver add right now?\", and get instant, opinionated answers grounded in actual data instead of generic advice. It's your GM brain, available 24/7, built specifically for my fantasy football league."},
+        {src:"assets/apps/linkhoarder.png", name:"Link Hoarder", theme:"#6d5ae6", desc:"Link Hoarder is a \"save now, triage later\" bookmarking system: links get dropped in from anywhere — including straight from your phone via the PWA's share-target — and land in a Supabase-backed queue with categories, tags, and a status pipeline (unread → skimmed → act-on-it → archived), all searchable via full-text search. An MCP server sits in front of it so an AI assistant can save, query, and organize links directly, rather than doing it all by hand in the app. It's also paired with QuickSum: anything tagged into a \"deep read\" queue gets picked up on a recurring schedule, where QuickSum summarizes the items and writes the summaries back into Link Hoarder — so heavy reading gets distilled automatically instead of just piling up unread."}
+      ]},
+      {title:"Keeping the Flame Lit", shape:"w-6", cls:"lesson", items:[
+        "<strong>Continuing the AI fluency push.</strong> Article 4 of the EU AI Act requires providers and deployers of AI systems to take measures that support AI literacy, taking account of the people involved and their context; the July 2026 amendment does not prescribe a particular level for each individual. The provision is a useful starting point for discussing real learning needs, beyond simply granting access to new tools.",
+        "<strong>Sharing foundational learning.</strong> I have encouraged colleagues to explore structured AI-fluency learning as an approachable starting point, especially material that expands the range of use cases people can imagine and emphasizes human judgment.",
+        "<strong>A peer-learning space, still a proposal.</strong> I considered a dedicated space for questions, experiments, insights, and shared examples. The important challenge was designing the conditions for ongoing participation rather than simply opening another channel."
+      ], extra:"<div class='cert-group'><h4>Completed Certifications:</h4><ul><li>Google AI Professional</li><li>Vibe Coding: AI-Powered App Development for Project Managers</li><li>Claude Code 101</li><li>Kaggle's 5-Day AI Agents Intensive</li></ul><h4>On The Horizon:</h4><ul><li>IBM AI Developer Certification</li><li>IBM RAG and Agentic AI Certification</li><li>Zapier AI Builder Path</li><li>Python with AI (Udemy)</li></ul></div>"}
+    ],
+    questionsTitle:"Questions Moving Forward",
+    hasThesis:true,
+    thesisTag:"Where I've Landed",
+    thesisTitle:"Your outputs are a reflection of your thinking.",
+    thesisBody:"AI can help generate ideas, but it doesn't replace the judgment behind them — and it doesn't guarantee quality. Vague direction can produce polished but generic output; thoughtful context, domain knowledge, and a willingness to iterate can make the result much more useful. The tool has real limitations of its own: it can miss context, get things wrong, or sound more confident than it should. But those limits don't erase the role of the person directing it. Two people can use the same model and get very different results based on what they ask, what they notice, what they challenge, and what they choose to do next. So the real work of AI fluency isn't just learning to prompt better in a technical sense — it's developing the thinking that's worth amplifying in the first place, and the judgment to evaluate what comes back.",
+    intro:"If your outputs are a reflection of your thinking, mine have taken a shape all their own — and everyone's will look different. For me, it's meant using AI in unique ways to solve unique problems, through methods that make sense specifically to how I operate, on my terms. Experiencing small wins and watching them compound into larger ones, and into bigger efforts over time, has left me with a new set of skills and a different way of thinking when I face a problem. <strong>Some examples:</strong>",
+    lede:"Where it stands today, and what is on the horizon. A credential is one stop on a longer arc — which is the reason this is worth telling as a progression rather than a certificate. The same is true for any organization deciding how to approach this.",
+    lessons:[
+      "A 2025 HFS Research study, conducted with Infosys, found that only 12% of surveyed enterprises had reached its highest level of AI maturity, while 88% remained in earlier stages. It's a useful illustration of the gap between adopting AI and meaningfully integrating it. Access is not adoption, and adoption is not integration.",
+      "A tick-a-box rollout can be worse than doing nothing. It creates the appearance of progress while potentially undermining trust and the conditions for meaningful adoption.",
+      "No platform closes the change-management gap on its own. The gap is human, so the intervention has to be human.",
+      "Regulatory timelines can be an opening rather than a threat — a non-defensive reason to start, with a date attached.",
+      "The people already doing this work inside an organization are usually invisible until someone asks the right question."
+    ],
+    comprised:["A live practice with real documents, frameworks, and case studies","Participating in the wider professional discourse rather than working in isolation","Organizational AI adoption accelerating on a fixed timeline","EU AI Act Article 4: AI-literacy obligations applied from February 2025; oversight and enforcement began in August 2026"],
+    built:["This hub — a living document that keeps growing","A public presence — writing, commenting, engaging with a real voice","A one-pager that elaborates whatever gets said in the room"],
+    observed:["The distinction between initial adoption and sustained integration deserves its own measurement","Appearance of progress is the most expensive failure mode","No platform closes the change-management gap on its own"],
+    resources:["Ongoing research and academic sourcing","Professional networks and discourse","Everything in the phases before this one"],
+    work:["Pressure from below meeting weight from above","A trajectory that now has organizational relevance"],
+    personal:["A next step was discussing how this evolving experience with AI fluency could contribute to broader professional learning."],
+    questions:["What does it take for an organization to find the people already doing this quietly?","How far does a fluency push actually scale — team, department, org?","What is the honest ceiling on identity-preserving entry points before someone has to choose?","How do you measure integration rather than adoption?","Does \"your outputs are a reflection of your thinking\" hold as the thesis, or does it evolve?"]
+  }
+];
+
+
+const segs=document.getElementById('segs');
+phases.forEach((p,i)=>{
+  const s=document.createElement('div');
+  s.className='seg'+(i===0?' on':'')+(p.openSlot?' open-slot':'');
+  s.setAttribute('role','button');
+  s.setAttribute('tabindex','0');
+  s.setAttribute('aria-label',`View ${p.label}: ${p.title.replace(/&amp;/g,'&')}`);
+  s.setAttribute('aria-pressed',i===0?'true':'false');
+  s.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select(i);}});
+  s.innerHTML=`<span class="s-ico">${p.ico}</span><span class="s-num">${String(i+1).padStart(2,'0')}</span>`;
+  s.onclick=()=>select(i);
+  segs.appendChild(s);
+});
+
+
+function block(t,items,shape,cls){
+  if(!items||!items.length) return '';
+  const sh = shape || 'w-3';
+  const extra = cls ? ' '+cls : '';
+  return `<div class="block ${sh}${extra}"><h3>${t}</h3><ul>${items.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
+}
+function oeBlock(experience,observation,shape,opts){
+  if((!experience||!experience.length)&&(!observation||!observation.length)) return '';
+  const sh = shape || 'w-4 tall';
+  const o = opts || {};
+  const title = o.title || 'Observations &amp; Experience';
+  const leftLabel = o.left || 'What Happened';
+  const rightLabel = o.right || 'Takeaways';
+  const col=(label,items)=>`<div class="oe-col"><h4>${label}</h4><ul>${(items||[]).map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
+  return `<div class="block oe ${sh}"><h3>${title}</h3>
+    <div class="oe-split">
+      ${col(leftLabel,experience)}
+      <div class="oe-line"></div>
+      ${col(rightLabel,observation)}
+    </div>
+  </div>`;
+}
+function enterBlock(p){
+  if(p.enter){
+    const e=p.enter;
+    const pts=(e.points||[]).map(pt=>`<li><span class="lead">${pt.lead}</span> ${pt.body}</li>`).join('');
+    return `<div class="block w-6"><h3>Entering This Phase:</h3>
+      <p class="enter-lede">${e.intro}</p>
+      ${pts?`<ul class="enter-list">${pts}</ul>`:''}
+      ${e.outro?`<p class="enter-close">${e.outro}</p>`:''}
+    </div>`;
+  }
+  return block('Entering This Phase:',p.personal,'w-6');
+}
+function comps(p){
+  if(!p.components) return '';
+  return p.components.map(c=>`<div class="component"><div class="c-tag">${c.tag}</div><h4>${c.title}</h4><p>${c.body}</p></div>`).join('');
+}
+function thesis(p){
+  if(!p.hasThesis) return '';
+  return `<div class="thesis"><div class="t-tag">${p.thesisTag}</div><h4>${p.thesisTitle}</h4><p>${p.thesisBody}</p></div>`;
+}
+function quest(p){
+  if(!p.questions) return '';
+  return `<div class="questions"><h3>${p.questionsTitle||'Questions'}</h3><ul>${p.questions.map(q=>`<li>${q}</li>`).join('')}</ul></div>`;
+}
+function sectionBlock(s){
+  const sh=s.shape||'w-3';
+  const clsx=s.cls?' '+s.cls:'';
+  let inner;
+  if(s.images&&s.images.length){
+    const note=s.note?`<p class="apps-note">${s.note}</p>`:'';
+    inner=note+`<div class="apps-grid">${s.images.map((im,i)=>
+      `<button type="button" class="app-card" style="animation-delay:${(i*0.10).toFixed(2)}s" onclick="openApp(${i})" aria-label="Read about ${im.name||im.alt||'the app'}"><img src="${im.src}" alt="" loading="lazy"></button>`
+    ).join('')}</div>`;
+  } else if(s.items&&s.items.length){
+    inner=`<ul>${s.items.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  } else if(!s.extra){
+    inner=`<p class="pending">Content coming — this section is being built.</p>`;
+  } else { inner=''; }
+  return `<div class="block ${sh}${clsx}"><h3>${s.title}</h3>${inner}${s.extra||''}</div>`;
+}
+let CURRENT_APPS=[];
+let appModalReturnFocus=null;
+function hexToRgba(hex,a){hex=(hex||'#12363a').replace('#','');if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');const n=parseInt(hex,16);return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;}
+function openApp(i){
+  const a=CURRENT_APPS[i]; if(!a) return;
+  const m=document.getElementById('app-modal');
+  const theme=a.theme||'#12363a';
+  m.style.setProperty('--app-theme',theme);
+  m.style.setProperty('--app-tint',hexToRgba(theme,.12));
+  const img=m.querySelector('.am-img');
+  img.src=a.src; img.alt=a.name||a.alt||'';
+  m.querySelector('.am-name').textContent=a.name||a.alt||'';
+  m.querySelector('.am-desc').textContent=a.desc||'';
+  appModalReturnFocus=document.activeElement;
+  m.classList.add('open');
+  document.body.style.overflow='hidden';
+  m.querySelector('.am-close').focus();
+}
+function closeApp(){
+  document.getElementById('app-modal').classList.remove('open');
+  document.body.style.overflow='';
+  if(appModalReturnFocus && appModalReturnFocus.isConnected)appModalReturnFocus.focus();
+  appModalReturnFocus=null;
+}
+(function(){
+  const m=document.getElementById('app-modal');
+  m.addEventListener('click',e=>{if(e.target===m)closeApp();});
+  m.querySelector('.am-close').addEventListener('click',closeApp);
+  document.addEventListener('keydown',e=>{
+    if(!m.classList.contains('open'))return;
+    if(e.key==='Escape')closeApp();
+    if(e.key==='Tab'){e.preventDefault();m.querySelector('.am-close').focus();}
+  });
+})();
+
+
+let prevIndex = 0;
+
+
+function select(i){
+  document.querySelectorAll('.seg').forEach((s,x)=>{s.classList.toggle('on',x===i);s.setAttribute('aria-pressed',x===i?'true':'false');});
+  const p=phases[i];
+  const sum=document.getElementById('summary');
+  const d=document.getElementById('detail');
+
+
+  const miniTicks = phases.map((ph,x)=>
+    `<div class="mt${x===i?' on':''}${ph.openSlot?' slot':''}"></div>`
+  ).join('');
+
+
+  sum.innerHTML=`
+    <div class="mini-track">${miniTicks}</div>
+    <div class="s-inner">
+      <div class="s-tile">${p.ico}</div>
+      <div class="s-body">
+        <div class="s-phase">${p.label}</div>
+        <h2>${p.title}</h2>
+        <div class="s-era">${p.era}</div>
+        <p class="s-lede">${p.lede}</p>
+      </div>
+    </div>`;
+
+
+  // directional slide: forward = enters from right, backward = enters from left
+  const dir = i >= prevIndex ? 'go-right' : 'go-left';
+  sum.classList.remove('go-right','go-left');
+  void sum.offsetWidth;
+  sum.classList.add(dir);
+  prevIndex = i;
+
+
+  if(p.placeholder){
+    d.innerHTML = `<p class="placeholder-note">Nothing here yet — this slot is being held open.</p>`;
+  } else if(p.sections){
+    const appsSec = p.sections.find(s=>s.images);
+    CURRENT_APPS = appsSec ? appsSec.images : [];
+    d.innerHTML = `
+      <div class="block-grid">
+        ${thesis(p)}
+        ${p.intro?`<div class="phase-intro"><p>${p.intro}</p></div>`:''}
+        ${p.sections.map(sectionBlock).join('')}
+      </div>`;
+  } else {
+    const hasBuilds = !!(p.built && p.built.length && !p.hideBuilds);
+    d.innerHTML = `
+      <div class="block-grid">
+        ${enterBlock(p)}
+        ${oeBlock(p.comprised,p.observed, 'w-6', p.oe)}
+        ${block('Lessons Learned','lessons' in p ? p.lessons : null, hasBuilds?'w-4':'w-6','lesson')}
+        ${hasBuilds ? block('Relevant Builds',p.built,'w-2','builds-dark') : ''}
+        ${comps(p)} ${thesis(p)} ${quest(p)}
+      </div>`;
+  }
+  d.style.animation='none'; void d.offsetWidth; d.style.animation='';
+}
+select(0);
+</script>
+</body>
+</html>
